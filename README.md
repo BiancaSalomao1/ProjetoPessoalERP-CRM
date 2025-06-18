@@ -38,6 +38,7 @@ _Cada módulo contém suas próprias pastas:
 - service      
 - domain    
 - repository   
+- dto    
 
 ##Modelagem de Entidades
 
