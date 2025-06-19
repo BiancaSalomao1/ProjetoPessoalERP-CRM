@@ -1,9 +1,6 @@
 package com.projetoPessoal.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -11,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor // Gera construtor vazio
 @AllArgsConstructor // Gera construtor com todos os campos
 @Builder
+@Table(name = "user_group")
 public class Group {
 
     @Id

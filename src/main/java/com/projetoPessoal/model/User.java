@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor // Gera construtor vazio
 @AllArgsConstructor // Gera construtor com todos os campos
 @Builder // Permite usar padrão Builder
-
+@Table(name = "app_user")
 public class User {
 
     @Id
