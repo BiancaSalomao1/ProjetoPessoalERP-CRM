@@ -30,11 +30,12 @@ public class User {
     private String status;
     private String Observations;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_hability",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "hability_id")
-    )
-    private Set<Hability> habilitySet = new HashSet<>();
+
+//    @ManyToMany
+//    @JoinTable(
+//            name = "user_hability",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "hability_id")
+//    )
+//    private Set<Hability> habilitySet = new HashSet<>();
 }
