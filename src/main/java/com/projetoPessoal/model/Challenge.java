@@ -3,9 +3,6 @@ package com.projetoPessoal.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
 
 @Entity
 @Getter
@@ -15,8 +12,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "user_group")
-public class Group {
+@Table(name = "challenge")
+public class Challenge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,13 +22,12 @@ public class Group {
 
     private String name;
     private String description;
-    private String type;
 
 
-    // @ManyToMany(mappedBy = "userGroups")
-    // @ToString.Exclude
-    // @EqualsAndHashCode.Exclude
-    // private Set<User> members = new HashSet<>();
+//    @ManyToMany(mappedBy = "challenges")
+//    @ToString.Exclude
+//    @EqualsAndHashCode.Exclude
+//    private Set<User> userSet = new HashSet<>();
 
 }
 
