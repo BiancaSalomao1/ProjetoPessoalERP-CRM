@@ -14,5 +14,6 @@ public interface HabilityRepository extends JpaRepository<Hability, Long> {
      pode "return" um opcional contendo a Hability encontrada, ou um Optional vazio se nenhuma habilidade for encontrada.
      */
     Optional<Hability> findByName(String name);
+    boolean existsByName(String name);
 }
 

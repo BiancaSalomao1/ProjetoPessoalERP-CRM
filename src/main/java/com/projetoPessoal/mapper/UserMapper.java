@@ -3,14 +3,23 @@ package com.projetoPessoal.mapper;
 import com.projetoPessoal.dto.UserDTO;
 import com.projetoPessoal.model.Hability;
 import com.projetoPessoal.model.User;
-import org.mapstruct.Mapper;
+import com.projetoPessoal.service.HabilityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
+
+    private final HabilityService habilityService;
+
+    @Autowired
+    public UserMapper(HabilityService habilityService) {
+        this.habilityService = habilityService;
+    }
 
     public UserDTO toDTO(User user) {
         if (user == null) {
@@ -27,12 +36,17 @@ public class UserMapper {
                 .numOfDependents(user.getNumOfDependents())
                 .status(user.getStatus())
                 .observations(user.getObservations())
+                .photo(user.getPhoto())
                 .build();
 
-        if (user.getHabilitySet() != null) {
+        // Verificação de segurança para habilidades
+        if (user.getHabilitySet() != null && !user.getHabilitySet().isEmpty()) {
             dto.setHabilities(user.getHabilitySet().stream()
+                    .filter(hability -> hability != null && hability.getName() != null)
                     .map(Hability::getName)
                     .collect(Collectors.toSet()));
+        } else {
+            dto.setHabilities(new HashSet<>());
         }
 
         return dto;
@@ -52,14 +66,18 @@ public class UserMapper {
                 .numOfDependents(dto.getNumOfDependents())
                 .status(dto.getStatus())
                 .observations(dto.getObservations())
+                .photo(dto.getPhoto())
                 .build();
 
-
-
-        if (dto.getHabilities() != null) {
+        // Verificação de segurança para habilidades
+        if (dto.getHabilities() != null && !dto.getHabilities().isEmpty()) {
             user.setHabilitySet(dto.getHabilities().stream()
-                    .map(name -> Hability.builder().name(name).build())
+                    .filter(habilityName -> habilityName != null && !habilityName.trim().isEmpty())
+                    .map(habilityService::findOrCreateByName)
+                    .filter(hability -> hability != null)
                     .collect(Collectors.toSet()));
+        } else {
+            user.setHabilitySet(new HashSet<>());
         }
 
         return user;

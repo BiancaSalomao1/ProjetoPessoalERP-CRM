@@ -3,6 +3,10 @@ package com.projetoPessoal.exception;
 public class UserNotFoundException extends RuntimeException {
 
     public UserNotFoundException(Long id) {
-        super("Usuário com id " + id + " não encontrado.");
+        super("Usuário não encontrado com ID: " + id);
+    }
+
+    public UserNotFoundException(String message) {
+        super(message);
     }
 }
