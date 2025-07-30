@@ -34,6 +34,10 @@ public class User {
     private String status;
     private String observations;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String photo; // Base64 da imagem
+
     @ManyToMany
     @JoinTable(
             name = "user_hability",
