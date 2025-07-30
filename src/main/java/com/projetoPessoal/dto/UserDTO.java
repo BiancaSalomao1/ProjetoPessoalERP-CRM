@@ -25,6 +25,7 @@ public class UserDTO {
     private int numOfDependents;
     private String status;
     private String observations;
+    private String photo;
 
     private Set<String> habilities;
 }
