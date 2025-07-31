@@ -1,6 +1,7 @@
 package com.projetoPessoal.controller;
 
 import com.projetoPessoal.dto.UserDTO;
+import com.projetoPessoal.exception.UserNotFoundException;
 import com.projetoPessoal.mapper.UserMapper;
 import com.projetoPessoal.model.User;
 import com.projetoPessoal.service.UserService;
@@ -48,5 +49,14 @@ public class UserController {
             userService.deleteById(id);
             return ResponseEntity.noContent().build();
         }
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+        try {
+            UserDTO updatedUser = userService.updateUser(id, userDTO);
+            return ResponseEntity.ok(updatedUser);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
     }
 
