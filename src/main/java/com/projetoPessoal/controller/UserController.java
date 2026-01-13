@@ -1,62 +1,44 @@
 package com.projetoPessoal.controller;
 
+import com.projetoPessoal.dto.UserCreateDTO;
 import com.projetoPessoal.dto.UserDTO;
-import com.projetoPessoal.exception.UserNotFoundException;
-import com.projetoPessoal.mapper.UserMapper;
-import com.projetoPessoal.model.User;
+import com.projetoPessoal.dto.UserUpdateDTO;
 import com.projetoPessoal.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        User user = userService.findById(id);
-        return ResponseEntity.ok(userMapper.toDTO(user));  // use a instância
-    }
+    private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<User> userEntities = userService.findAll(); // retorna List<User>
-        List<UserDTO> users = userEntities.stream()
-                .map(userMapper::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(users);
+    public List<UserDTO> listAll() {
+        return userService.listAll();
     }
-        @PostMapping
-        public ResponseEntity<UserDTO> createUser (@RequestBody UserDTO userDTO){
-            User user = userMapper.toEntity(userDTO);  // use a instância
-            User savedUser = userService.saveUser(user);
-            return ResponseEntity.ok(userMapper.toDTO(savedUser));  // instância
-        }
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<Void> deleteUser (@PathVariable Long id){
-            userService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDTO create(@RequestBody UserCreateDTO dto) {
+        return userService.createUser(dto);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
-        try {
-            UserDTO updatedUser = userService.updateUser(id, userDTO);
-            return ResponseEntity.ok(updatedUser);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+    public UserDTO update(
+            @PathVariable Long id,
+            @RequestBody UserUpdateDTO dto
+    ) {
+        return userService.updateUser(id, dto);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        userService.deleteById(id);
+    }
+}

@@ -2,19 +2,16 @@ package com.projetoPessoal.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.Accessors;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "hability")
 @Getter
-@Setter
-@Accessors(chain = true)
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "hability")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Hability {
 
@@ -23,13 +20,14 @@ public class Hability {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String name;
 
+    @Column(length = 500)
     private String description;
 
     @ManyToMany(mappedBy = "habilitySet")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @Builder.Default
-    private Set<User> userSet = new HashSet<>();
+    private Set<User> users = new HashSet<>();
 }

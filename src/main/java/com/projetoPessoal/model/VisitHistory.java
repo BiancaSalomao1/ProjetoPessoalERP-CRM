@@ -3,45 +3,41 @@ package com.projetoPessoal.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "action_plan")
+@Table(name = "visit_history")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class ActionPlan {
+public class VisitHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Column(nullable = false)
+    private LocalDateTime visitDate;
+
     @Column(nullable = false, length = 1000)
     private String description;
 
-    private LocalDate deadline;
-
     @Column(nullable = false)
-    private Boolean fulfilled;
+    private String performedBy;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
     private User user;
 
-    /* Factory Method */
-    public static ActionPlan create(User user, String description, LocalDate deadline) {
-        return ActionPlan.builder()
+    public static VisitHistory create(User user, String description, String performedBy) {
+        return VisitHistory.builder()
                 .user(user)
                 .description(description)
-                .deadline(deadline)
-                .fulfilled(false)
+                .performedBy(performedBy)
+                .visitDate(LocalDateTime.now())
                 .build();
-    }
-
-    public void markAsFulfilled() {
-        this.fulfilled = true;
     }
 }

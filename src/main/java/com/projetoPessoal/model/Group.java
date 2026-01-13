@@ -6,16 +6,13 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 
-
 @Entity
+@Table(name = "user_group")
 @Getter
-@Setter
-@ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "user_group")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Group {
 
     @Id
@@ -23,15 +20,17 @@ public class Group {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Column(nullable = false)
     private String name;
+
     private String description;
     private String type;
 
-
-    // @ManyToMany(mappedBy = "userGroups")
-    // @ToString.Exclude
-    // @EqualsAndHashCode.Exclude
-    // private Set<User> members = new HashSet<>();
-
+    @ManyToMany
+    @JoinTable(
+            name = "group_user",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> members = new HashSet<>();
 }
-
