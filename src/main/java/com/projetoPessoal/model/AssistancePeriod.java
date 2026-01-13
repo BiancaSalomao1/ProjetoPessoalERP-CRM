@@ -6,30 +6,31 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "diagnostic")
+@Table(name = "assistance_period")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Diagnostic {
+public class AssistancePeriod {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false)
-    private LocalDate date;
+    @Column(name = "start_assistance_date", nullable = false)
+    private LocalDate startDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DiagnosticStatus status;
+    @Column(name = "end_assistance_date")
+    private LocalDate endDate;
 
-    @Column(length = 1000)
-    private String summary;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public boolean isActive() {
+        return endDate == null;
+    }
 }

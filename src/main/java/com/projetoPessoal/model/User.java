@@ -2,41 +2,49 @@ package com.projetoPessoal.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.Accessors;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Entity
+@Table(name = "users")
 @Getter
-@Setter
-@Accessors(chain = true)
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "app_user")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Include
     private Long id;
 
-    @EqualsAndHashCode.Include
+    @Column(nullable = false)
     private String name;
 
+    @Column(unique = true)
     private String email;
+
     private String phone;
     private String address;
-    private double income;
-    private int numOfDependents;
-    private String status;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal income;
+
+    private Integer numOfDependents;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
+    @Column(length = 1000)
     private String observations;
 
-    @Lob
-    @Column(columnDefinition = "LONGTEXT")
-    private String photo; // Base64 da imagem
+    @Column(name = "photo_path")
+    private String photoPath;
+
+    /* RELACIONAMENTOS */
 
     @ManyToMany
     @JoinTable(
@@ -47,7 +55,47 @@ public class User {
     @Builder.Default
     private Set<Hability> habilitySet = new HashSet<>();
 
-    public Set<Hability> getHabilitySet() {
-        return habilitySet;
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @Builder.Default
+    private Set<VisitHistory> visitHistory = new HashSet<>();
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @Builder.Default
+    private Set<AssistancePeriod> assistancePeriods = new HashSet<>();
+
+    /* REGRAS DE DOMÍNIO */
+
+    public void updateBasicData(
+            String name,
+            String email,
+            String phone,
+            String address,
+            BigDecimal income,
+            Integer numOfDependents,
+            Status status,
+            String observations,
+            Set<Hability> habilities
+    ) {
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.address = address;
+        this.income = income;
+        this.numOfDependents = numOfDependents;
+        this.status = status;
+        this.observations = observations;
+        this.habilitySet = habilities;
+    }
+
+    public Collection<AssistancePeriod> getAssistancePeriods() {
+        return Collections.unmodifiableSet(assistancePeriods);
     }
 }

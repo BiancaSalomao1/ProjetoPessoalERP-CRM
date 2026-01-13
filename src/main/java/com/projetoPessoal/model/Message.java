@@ -1,22 +1,17 @@
 package com.projetoPessoal.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
-
 @Entity
+@Table(name = "message")
 @Getter
-@Setter
-@ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Message {
 
     @Id
@@ -24,18 +19,21 @@ public class Message {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Column(nullable = false, length = 2000)
     private String content;
-    private LocalDateTime submissionDate; // Data e hora de envio da mensagem
-    private String submissionType; // email, sms, whatsapp
-    private String status; //enviada, lida, falha
 
+    @Column(nullable = false)
+    private LocalDateTime submissionDate;
 
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
+    private MessageType submissionType;
+
+    @Enumerated(EnumType.STRING)
+    private MessageStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private User destinatario;
 
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Group grupoDestinatario;
-
 }
-

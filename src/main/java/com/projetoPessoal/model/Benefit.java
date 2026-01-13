@@ -3,19 +3,13 @@ package com.projetoPessoal.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
-
 @Entity
+@Table(name = "benefit")
 @Getter
-@Setter
-@ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "benefit")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Benefit {
 
     @Id
@@ -23,14 +17,9 @@ public class Benefit {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String name;
+
+    @Column(length = 500)
     private String description;
-
-
-    // @ManyToMany(mappedBy = "benefits")
-    // @ToString.Exclude
-    // @EqualsAndHashCode.Exclude
-    // private Set<User> userSet = new HashSet<>();
-
 }
-
