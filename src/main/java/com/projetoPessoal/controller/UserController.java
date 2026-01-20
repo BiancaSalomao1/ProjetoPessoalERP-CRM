@@ -3,6 +3,7 @@ package com.projetoPessoal.controller;
 import com.projetoPessoal.dto.UserCreateDTO;
 import com.projetoPessoal.dto.UserDTO;
 import com.projetoPessoal.dto.UserUpdateDTO;
+import com.projetoPessoal.model.User;
 import com.projetoPessoal.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,10 +18,12 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
-    public List<UserDTO> listAll() {
-        return userService.listAll();
+    @GetMapping("/{id}")
+    public UserDTO getById(@PathVariable Long id) {
+        return userService.findDTOById(id);
     }
+
+
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

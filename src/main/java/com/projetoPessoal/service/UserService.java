@@ -58,16 +58,10 @@ public class UserService {
                 .habilitySet(habilities)
                 .build();
 
-        AssistancePeriod firstPeriod = new AssistancePeriod();
-        firstPeriod.setStartDate(dto.startAssistanceDate());
-        firstPeriod.setUser(user);
-
-        user.getAssistancePeriods().forEach(p -> {}); // força inicialização
-        user.getAssistancePeriods(); // leitura segura
-        user.getAssistancePeriods(); // (intencionalmente só leitura)
+        // ✅ regra de domínio
+        user.startAssistance(dto.startAssistanceDate());
 
         userRepository.save(user);
-        user.getAssistancePeriods(); // garante persistência
 
         return userMapper.toDTO(user);
     }
@@ -114,6 +108,10 @@ public class UserService {
             throw new UserNotFoundException(id);
         }
         userRepository.deleteById(id);
+    }
+    public UserDTO findDTOById(Long id) {
+        User user = findById(id);
+        return userMapper.toDTO(user);
     }
 
 }
