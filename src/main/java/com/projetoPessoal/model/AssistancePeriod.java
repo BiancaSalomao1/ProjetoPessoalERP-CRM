@@ -9,9 +9,7 @@ import java.time.LocalDate;
 @Table(name = "assistance_period")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AssistancePeriod {
 

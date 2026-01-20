@@ -1,9 +1,11 @@
 package com.projetoPessoal.model;
 
+import com.projetoPessoal.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 
 @Entity
@@ -98,4 +100,25 @@ public class User {
     public Collection<AssistancePeriod> getAssistancePeriods() {
         return Collections.unmodifiableSet(assistancePeriods);
     }
+
+    public void startAssistance(LocalDate startDate) {
+
+        if (this.status == Status.INACTIVE) {
+            throw new BusinessException("Usuário inativo não pode receber novo plano");
+        }
+
+        boolean hasActivePeriod = assistancePeriods.stream()
+                .anyMatch(AssistancePeriod::isActive);
+
+        if (hasActivePeriod) {
+            throw new IllegalStateException("Usuário já possui assistência ativa");
+        }
+
+        AssistancePeriod period = new AssistancePeriod();
+        period.setStartDate(startDate);
+        period.setUser(this);
+
+        this.assistancePeriods.add(period);
+    }
+
 }
