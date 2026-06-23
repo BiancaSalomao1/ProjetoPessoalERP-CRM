@@ -1,6 +1,7 @@
 package com.projetoPessoal.mapper;
 
 import com.projetoPessoal.dto.UserDTO;
+import com.projetoPessoal.model.Address;
 import com.projetoPessoal.model.Hability;
 import com.projetoPessoal.model.Status;
 import com.projetoPessoal.model.User;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 @Component
 public class UserMapper {
 
-    /* ENTITY → DTO  */
+    /* ENTITY → DTO */
 
     public UserDTO toDTO(User user) {
         if (user == null) {
@@ -23,58 +24,69 @@ public class UserMapper {
         Set<String> habilities = user.getHabilitySet() == null
                 ? Collections.emptySet()
                 : user.getHabilitySet().stream()
-                .filter(h -> h != null && h.getName() != null)
-                .map(Hability::getName)
-                .collect(Collectors.toSet());
+                        .filter(h -> h != null && h.getName() != null)
+                        .map(Hability::getName)
+                        .collect(Collectors.toSet());
 
         return new UserDTO(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getAddress(),
+                user.getAddressEntity() != null ? user.getAddressEntity().getStreet() : null,
                 user.getIncome(),
-                user.getNumOfDependents(),
+                user.getDependents() != null ? user.getDependents().size() : 0,
                 user.getStatus() != null ? user.getStatus().name() : null,
                 user.getObservations(),
-                habilities
-        );
+                habilities);
     }
 
-    /*  DTO → ENTITY */
+    /* DTO → ENTITY */
 
     public User toEntity(UserDTO dto, Set<Hability> habilities) {
         if (dto == null) {
             return null;
         }
 
+        Address addr = null;
+        if (dto.address() != null) {
+            addr = new Address();
+            addr.setStreet(dto.address());
+        }
+
         return User.builder()
                 .name(dto.name())
                 .email(dto.email())
                 .phone(dto.phone())
-                .address(dto.address())
+                .addressEntity(addr)
                 .income(dto.income())
-                .numOfDependents(dto.numOfDependents())
                 .status(dto.status() != null ? Status.valueOf(dto.status()) : null)
                 .observations(dto.observations())
                 .habilitySet(habilities)
                 .build();
     }
 
-    /* UPDATE PARCIAL  */
+    /* UPDATE PARCIAL */
 
     public void updateEntity(User user, UserDTO dto, Set<Hability> habilities) {
+        Address addr = user.getAddressEntity();
+        if (addr == null && dto.address() != null) {
+            addr = new Address();
+            addr.setStreet(dto.address());
+            addr.setUser(user);
+        } else if (addr != null && dto.address() != null) {
+            addr.setStreet(dto.address());
+        }
+
         user.updateBasicData(
                 dto.name(),
                 dto.email(),
                 dto.phone(),
-                dto.address(),
+                addr,
                 dto.income(),
-                dto.numOfDependents(),
                 dto.status() != null ? Status.valueOf(dto.status()) : null,
                 dto.observations(),
-                habilities
-        );
+                habilities);
     }
 
 }

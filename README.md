@@ -1,194 +1,120 @@
-# ProjetoPessoalERP-CRM
-Projeto para desenvolvimento de habilidades pessoais
+# Sistema de Gestão para Assistência Social (ERP/CRM)
 
+Projeto desenvolvido com foco na **Assistência Social**, utilizando metodologias modernas como **TDD** (Test-Driven Development) e conceitos de arquitetura limpa (adaptável ao padrão **MCP** - Model Context Protocol para IA / MVC).
 
-# Documentação do Projeto ERP + CRM Genérico
+O sistema permite o cadastro detalhado de assistidos (entidades), mapeamento geográfico das residências para cálculo e agendamento de rotas de visitas técnicas, gerenciamento de dependentes e um acompanhamento rigoroso do histórico de interações.
 
-## Visão Geral
+---
 
-Este projeto implementa um sistema ERP + CRM modular, escalável e genérico, capaz de atender diferentes domínios, incluindo gestão social, assistencial, empresarial ou qualquer outro cenário que envolva o cadastro de pessoas físicas, jurídicas e seus relacionamentos.
+## 🎯 Principais Funcionalidades
 
-- **Backend:** Java + Spring Boot
-- **Frontend:** React + TypeScript
-- **Banco de Dados:** H2 (inicial), com possibilidade de migração para PostgreSQL, MySQL ou outros bancos relacionais.
-- **Arquitetura:** Modular, limpa, desacoplada e escalável.
+- **Gestão de Assistidos (Entidades):** Cadastro principal do chefe de família ou indivíduo assistido.
+- **Gestão de Dependentes:** Cadastro em banco próprio contendo nome e data de nascimento. A idade é calculada dinamicamente, mantendo relatórios demográficos sempre atualizados.
+- **Geolocalização e Rotas:** Os endereços possuem campos de latitude e longitude (preparados para Google Maps API). É possível visualizar a distribuição dos IDs no mapa, criar, editar, deletar e salvar **Rotas de Visitas Técnicas** otimizadas.
+- **Histórico e Acompanhamento:** Cada ID possui um registro contínuo (Append-Only) das visitas realizadas. O histórico salva a data, detalhes do atendimento e quem realizou a visita, sem sobrescrever informações passadas.
+- **Habilidades (CRUD):** Registro de habilidades profissionais (ex: Manicure, Vendas, Confeitaria, Atendimento) para direcionamento ao mercado de trabalho. Implementado como Entidade (editável dinamicamente via CRUD e pré-populado).
 
-## Arquitetura Backend
-**Estrutura em Camadas**
--Controller: Interface de entrada da aplicação, responsável pelos endpoints REST.    
--Service: Contém a lógica de negócio e as regras do domínio.    
--Domain: Modelagem das entidades e regras específicas do domínio.    
--Repository: Persistência dos dados usando Spring Data JPA.    
--Infrastructure: Configurações, segurança, mensageria e integrações externas.    
+---
 
-**Modularização**
--entidade   
--habilidade    
--problemaOuDesafio   
--beneficioOuAuxilio   
--diagnostico   
--planoAcao   
--grupo   
--registroDeInteracao    
--mensagem   
--auth (segurança e autenticação)   
-    
-_Cada módulo contém suas próprias pastas:   
-- controller   
-- service      
-- domain    
-- repository   
-- dto    
+## 🛠 Arquitetura e Tecnologias
 
-##Modelagem de Entidades
+- **Backend:** Java + Spring Boot (Padrão MVC/REST)
+- **Frontend:** React + TypeScript (Previsto)
+- **Banco de Dados:** H2 (inicial/desenvolvimento), pronto para migração para PostgreSQL/MySQL.
+- **Geolocalização:** Preparado para integração com Google Maps API.
+- **Metodologia:** TDD (Desenvolvimento Orientado a Testes).
 
+### Estrutura em Camadas
+- `Controller`: Interface de entrada (REST endpoints).
+- `Service`: Lógica de negócios.
+- `Domain`: Modelagem de entidades.
+- `Repository`: Persistência via Spring Data JPA.
+
+---
+
+## 📦 Modelagem de Entidades Principais
+
+```java
 public class Entidade {  
-    @Id @GeneratedValue  
     private Long id;  
     private String nome;  
     private String identificador;  
     private String telefone;  
-    private String endereco;  
     private Double rendaOuFaturamento;  
-    private Integer quantidadeDePessoasOuFuncionarios;   
     private String status;  
-    private String observacoes;  
-  
+    
+    @OneToOne
+    private Endereco endereco;
+
+    @OneToMany(mappedBy = "entidade")
+    private List<Dependente> dependentes;
+
+    @OneToMany(mappedBy = "entidade")
+    private List<RegistroDeInteracao> historicoVisitas;
+
     @ManyToMany  
-    private Set<Habilidade> habilidades = new HashSet<>();   
-  
-    @ManyToMany  
-    private Set<ProblemaOuDesafio> desafios = new HashSet<>();   
-  
-    @ManyToMany   
-    private Set<BeneficioOuAuxilio> beneficios = new HashSet<>();   
+    private Set<Habilidade> habilidades;
 }   
-Habilidade, ProblemaOuDesafio e BeneficioOuAuxilio  
-   
-public class Habilidade {    
-    @Id @GeneratedValue   
-    private Long id;   
-    private String nome;   
-    private String descricao;   
-}   
-*O mesmo para ProblemaOuDesafio e BeneficioOuAuxilio    
+
+public class Dependente {
+    private Long id;
+    private String nome;
+    private LocalDate dataNascimento;
     
-public class Diagnostico {    
-    @Id @GeneratedValue    
-    private Long id;    
-    private LocalDate data;    
-    private String status;   
-    private String resumo;   
-   
-    @ManyToOne    
-    private Entidade entidade;    
-}   
-    
-     
-public class PlanoAcao {   
-    @Id @GeneratedValue   
-    private Long id;   
-    private String descricao;   
-    private LocalDate prazo;   
-    private Boolean cumprido;   
-   
-    @ManyToOne    
-    private Entidade entidade;    
-}    
-   
-public class Grupo {    
-    @Id @GeneratedValue    
-    private Long id;    
-    private String nome;   
-    private String descricao;   
-    private String tipo;   
-   
-    @ManyToMany    
-    private Set<Entidade> membros = new HashSet<>();    
-}    
-    
-public class RegistroDeInteracao {     
-    @Id @GeneratedValue    
-    private Long id;     
-    private LocalDate data;     
-    private String status;    
-    private String observacoes;    
-    
-    @ManyToOne    
-    private Entidade entidade;     
-}    
-    
-public class Mensagem {    
-    @Id @GeneratedValue    
-    private Long id;    
-    private String conteudo;    
-    private LocalDateTime dataEnvio;    
-    private String tipoEnvio;    
-    private String status;    
-    
-    @ManyToOne    
-    private Entidade destinatario;     
-    @ManyToOne    
-    private Grupo grupoDestinatario;   
-}    
-    
-##Banco de Dados    
--Inicialmente com H2 Database.    
--Pronto para migração para PostgreSQL, MySQL, SQL Server ou outros relacionais.    
-   
-##Segurança   
--Spring Security com autenticação baseada em JWT.    
--Controle de acesso por papéis (RBAC) com os seguintes perfis:    
--Papel	Permissão:     
-  ADMIN	Acesso total    
-  COORDENADOR	Gestão de grupos, equipes e relatórios     
-  AGENTE	Interação direta com entidades    
-  CONSULTA	Acesso apenas leitura   
-    
-##API REST   
--Padrão RESTful.    
--Documentação automática com Springdoc OpenAPI/Swagger.    
--Endpoints organizados por módulo:    
+    // Idade é calculada em tempo real pela data de nascimento
+    @Transient
+    private Integer idade;
+}
 
-  /api/entidades   
+public class Endereco {
+    private Long id;
+    private String logradouro, bairro, cidade, estado;
+    private Double latitude;
+    private Double longitude;
+}
 
-  /api/grupos   
+public class RotaVisita {
+    private Long id;
+    private String nomeDaRota;
+    private LocalDate dataCriacao;
+    private String status;
+    @OneToMany
+    private List<ParadaVisita> paradas;
+}
+```
 
-  /api/diagnosticos   
+---
 
-  /api/planoacoes   
+## 🧪 Metodologia TDD (Test-Driven Development)
 
-  /api/mensagens   
+Este projeto adota **TDD**. O fluxo de desenvolvimento exige que:
+1. **Red**: Escreva testes que falham para uma nova funcionalidade (ex: `DependenteTest` para validar o cálculo de idade).
+2. **Green**: Escreva o mínimo de código na classe principal (`Dependente.java`) para fazer o teste passar.
+3. **Refactor**: Melhore o código mantendo o teste aprovado.
 
+**Para rodar os testes:**
+```bash
+./mvnw test
+```
 
-##Arquitetura Frontend (React + TypeScript)
--Estrutura de Pastas :    
-src/    
-├── components/          
-├── features/             
-│   ├── entidade/     
-│   │   ├── EntidadeList.tsx     
-│   │   ├── EntidadeForm.tsx     
-│   │   └── entidade.api.ts    
-├── hooks/                 
-├── lib/                   
-├── routes/               
-├── types/                
-└── App.tsx    
+---
 
--Ferramentas e Bibliotecas      
-React   
-React Router    
-Axios para comunicação HTTP    
-React Query para gerenciar requisições e cache.    
-Auth com JWT e controle de rotas protegidas.   
+## 🚀 Como Executar o Projeto
 
-##Escalabilidade e Extensões Futuras   
-Pronto para migração para microserviços, se necessário.   
-Suporte a mensagens     
-Integração com serviços externos (ex.: APIs de WhatsApp, SMS, email).    
-Pode ser estendido com dashboards analíticos e relatórios BI.   
+1. **Clone o repositório e navegue até a pasta**.
+2. **Execute o script de inicialização:** 
+   O projeto conta com scripts auxiliares na pasta `scripts/` para preparação do ambiente de Assistência Social.
+   ```bash
+   bash scripts/init_social_assistance.sh
+   ```
+3. **Suba a aplicação Spring Boot:**
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+4. **Habilidades Iniciais:**
+   Ao iniciar, o banco de dados carregará automaticamente habilidades básicas através do arquivo `src/main/resources/data.sql`.
 
-## Conclusão  
+---
 
-Este projeto foi desenvolvido para ser genérico, modular e escalável, atendendo tanto organizações assistenciais quanto empresas. Seu núcleo é o cadastro de entidades de forma abstrata e flexível, permitindo expandir funcionalidades conforme a necessidade do domínio de negócio.
+## 📍 Integração de Mapas (Próximos Passos)
+O frontend consumirá os `Enderecos` com suas coordenadas para exibir a distribuição espacial das famílias atendidas. Rotas serão traçadas permitindo que as equipes sociais agendem dias de campo eficientes, salvando as `Rotas de Visitas` para uso posterior.

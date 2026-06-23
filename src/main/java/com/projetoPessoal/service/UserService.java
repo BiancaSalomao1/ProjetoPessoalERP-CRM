@@ -44,21 +44,26 @@ public class UserService {
 
         Set<Hability> habilities = resolveHabilities(dto.habilities());
 
+        Address addr = null;
+        if (dto.address() != null) {
+            addr = new Address();
+            addr.setStreet(dto.address());
+        }
+
         User user = User.builder()
                 .name(dto.name())
                 .email(dto.email())
                 .phone(dto.phone())
-                .address(dto.address())
+                .addressEntity(addr)
                 .income(dto.income() != null
                         ? BigDecimal.valueOf(dto.income())
                         : BigDecimal.ZERO)
-                .numOfDependents(dto.numOfDependents())
                 .status(dto.status() != null ? dto.status() : Status.ACTIVE)
                 .observations(dto.observations())
                 .habilitySet(habilities)
                 .build();
 
-        // ✅ regra de domínio
+        // regra de domínio
         user.startAssistance(dto.startAssistanceDate());
 
         userRepository.save(user);
@@ -75,17 +80,24 @@ public class UserService {
 
         Set<Hability> habilities = resolveHabilities(dto.habilities());
 
+        Address addr = user.getAddressEntity();
+        if (addr == null && dto.address() != null) {
+            addr = new Address();
+            addr.setStreet(dto.address());
+            addr.setUser(user);
+        } else if (addr != null && dto.address() != null) {
+            addr.setStreet(dto.address());
+        }
+
         user.updateBasicData(
                 dto.name(),
                 dto.email(),
                 dto.phone(),
-                dto.address(),
+                addr,
                 dto.income(),
-                dto.numOfDependents(),
                 dto.status(),
                 dto.observations(),
-                habilities
-        );
+                habilities);
 
         return userMapper.toDTO(userRepository.save(user));
     }
@@ -109,6 +121,7 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
+
     public UserDTO findDTOById(Long id) {
         User user = findById(id);
         return userMapper.toDTO(user);
