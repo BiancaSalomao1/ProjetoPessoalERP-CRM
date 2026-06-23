@@ -29,12 +29,16 @@ public class User {
     private String email;
 
     private String phone;
-    private String address;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private Address addressEntity;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal income;
 
-    private Integer numOfDependents;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Dependent> dependents = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -49,27 +53,15 @@ public class User {
     /* RELACIONAMENTOS */
 
     @ManyToMany
-    @JoinTable(
-            name = "user_hability",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "hability_id")
-    )
+    @JoinTable(name = "user_hability", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "hability_id"))
     @Builder.Default
     private Set<Hability> habilitySet = new HashSet<>();
 
-    @OneToMany(
-            mappedBy = "user",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<VisitHistory> visitHistory = new HashSet<>();
 
-    @OneToMany(
-            mappedBy = "user",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<AssistancePeriod> assistancePeriods = new HashSet<>();
 
@@ -79,19 +71,16 @@ public class User {
             String name,
             String email,
             String phone,
-            String address,
+            Address addressEntity,
             BigDecimal income,
-            Integer numOfDependents,
             Status status,
             String observations,
-            Set<Hability> habilities
-    ) {
+            Set<Hability> habilities) {
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.address = address;
+        this.addressEntity = addressEntity;
         this.income = income;
-        this.numOfDependents = numOfDependents;
         this.status = status;
         this.observations = observations;
         this.habilitySet = habilities;
