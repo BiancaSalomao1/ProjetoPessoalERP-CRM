@@ -20,7 +20,7 @@ public class DataInitializer implements CommandLineRunner {
     @Value("${admin.initial.username:admin}")
     private String adminUsername;
 
-    @Value("${admin.initial.password:admin}")
+    @Value("${admin.initial.password:CHANGEME}")
     private String adminPassword;
 
     @Override
