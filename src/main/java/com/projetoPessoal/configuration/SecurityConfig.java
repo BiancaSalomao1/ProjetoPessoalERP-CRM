@@ -42,8 +42,10 @@ public class SecurityConfig {
                         // Qualquer outro endpoint exige autenticação
                         .anyRequest().authenticated()
                 )
-                // Permitir exibição de páginas em frames (exigido pelo console H2)
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                .headers(headers -> headers
+                        // SEGURO: Protege contra clickjacking em produção
+                        .frameOptions(frame -> frame.sameOrigin()) // sameOrigin permite H2 console no mesmo domínio (dev)
+                )
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();
