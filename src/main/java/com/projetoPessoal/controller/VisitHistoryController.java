@@ -9,24 +9,31 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users/{userId}/visits")
+@RequestMapping("/api/visit-history")
 @RequiredArgsConstructor
 public class VisitHistoryController {
 
-    private final VisitHistoryService visitHistoryService;
+    private final VisitHistoryService service;
+
+    @GetMapping
+    public List<VisitHistoryDTO> getAll() {
+        return service.listAll();
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public VisitHistoryDTO registerVisit(
-            @PathVariable Long userId,
-            @RequestParam String description,
-            @RequestParam String performedBy
-    ) {
-        return visitHistoryService.registerVisit(userId, description, performedBy);
+    public VisitHistoryDTO create(@RequestBody VisitHistoryDTO dto) {
+        return service.registerVisit(dto);
     }
 
-    @GetMapping
-    public List<VisitHistoryDTO> listByUser(@PathVariable Long userId) {
-        return visitHistoryService.listByUser(userId);
+    @PutMapping("/{id}")
+    public VisitHistoryDTO update(@PathVariable Long id, @RequestBody VisitHistoryDTO dto) {
+        return service.updateVisit(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.deleteVisit(id);
     }
 }

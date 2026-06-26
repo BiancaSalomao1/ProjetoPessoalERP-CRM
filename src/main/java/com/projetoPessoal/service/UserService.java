@@ -1,8 +1,6 @@
 package com.projetoPessoal.service;
 
-import com.projetoPessoal.dto.UserCreateDTO;
 import com.projetoPessoal.dto.UserDTO;
-import com.projetoPessoal.dto.UserUpdateDTO;
 import com.projetoPessoal.exception.UserNotFoundException;
 import com.projetoPessoal.mapper.UserMapper;
 import com.projetoPessoal.model.*;
@@ -12,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,31 +39,43 @@ public class UserService {
     /* CRIAÇÃO */
 
     @Transactional
-    public UserDTO createUser(UserCreateDTO dto) {
+    public UserDTO createUser(UserDTO dto) {
 
         Set<Hability> habilities = resolveHabilities(dto.habilities());
 
-        Address addr = null;
-        if (dto.address() != null) {
-            addr = new Address();
-            addr.setStreet(dto.address());
-        }
+        Address addr = buildAddress(dto);
 
         User user = User.builder()
                 .name(dto.name())
                 .email(dto.email())
                 .phone(dto.phone())
                 .addressEntity(addr)
-                .income(dto.income() != null
-                        ? BigDecimal.valueOf(dto.income())
-                        : BigDecimal.ZERO)
-                .status(dto.status() != null ? dto.status() : Status.ACTIVE)
+                .income(dto.income() != null ? dto.income() : BigDecimal.ZERO)
+                .status(dto.status() != null ? Status.fromValue(dto.status()) : Status.ACTIVE)
                 .observations(dto.observations())
+                .photoPath(dto.photoPath())
                 .habilitySet(habilities)
                 .build();
 
-        // regra de domínio
-        user.startAssistance(dto.startAssistanceDate());
+        // Adicionar dependentes
+        if (dto.dependents() != null) {
+            for (var depDto : dto.dependents()) {
+                Dependent dep = new Dependent();
+                dep.setName(depDto.name());
+                if (depDto.birthDate() != null && !depDto.birthDate().isEmpty()) {
+                    dep.setBirthDate(LocalDate.parse(depDto.birthDate()));
+                }
+                dep.setUser(user);
+                user.getDependents().add(dep);
+            }
+        }
+
+        // Inicia assistência automaticamente com data de hoje
+        try {
+            user.startAssistance(LocalDate.now());
+        } catch (Exception e) {
+            // Se falhar (ex: usuário INATIVO), ignorar silenciosamente
+        }
 
         userRepository.save(user);
 
@@ -74,19 +85,24 @@ public class UserService {
     /* ATUALIZAÇÃO */
 
     @Transactional
-    public UserDTO updateUser(Long id, UserUpdateDTO dto) {
+    public UserDTO updateUser(Long id, UserDTO dto) {
 
         User user = findById(id);
 
         Set<Hability> habilities = resolveHabilities(dto.habilities());
 
         Address addr = user.getAddressEntity();
-        if (addr == null && dto.address() != null) {
-            addr = new Address();
-            addr.setStreet(dto.address());
+        if (dto.addressEntity() != null) {
+            if (addr == null) {
+                addr = new Address();
+            }
+            addr.setStreet(dto.addressEntity().street());
+            addr.setNumber(dto.addressEntity().number());
+            addr.setNeighborhood(dto.addressEntity().neighborhood());
+            addr.setCity(dto.addressEntity().city());
+            addr.setState(dto.addressEntity().state());
+            addr.setZipCode(dto.addressEntity().zipCode());
             addr.setUser(user);
-        } else if (addr != null && dto.address() != null) {
-            addr.setStreet(dto.address());
         }
 
         user.updateBasicData(
@@ -94,15 +110,46 @@ public class UserService {
                 dto.email(),
                 dto.phone(),
                 addr,
-                dto.income(),
-                dto.status(),
+                dto.income() != null ? dto.income() : BigDecimal.ZERO,
+                dto.status() != null ? Status.fromValue(dto.status()) : user.getStatus(),
                 dto.observations(),
                 habilities);
+
+        if (dto.photoPath() != null) {
+            user.setPhotoPath(dto.photoPath());
+        }
+
+        // Atualizar dependentes
+        if (dto.dependents() != null) {
+            user.getDependents().clear();
+            for (var depDto : dto.dependents()) {
+                Dependent dep = new Dependent();
+                dep.setName(depDto.name());
+                if (depDto.birthDate() != null && !depDto.birthDate().isEmpty()) {
+                    dep.setBirthDate(LocalDate.parse(depDto.birthDate()));
+                }
+                dep.setUser(user);
+                user.getDependents().add(dep);
+            }
+        }
 
         return userMapper.toDTO(userRepository.save(user));
     }
 
     /* AUXILIAR */
+
+    private Address buildAddress(UserDTO dto) {
+        if (dto.addressEntity() == null) return null;
+
+        Address addr = new Address();
+        addr.setStreet(dto.addressEntity().street());
+        addr.setNumber(dto.addressEntity().number());
+        addr.setNeighborhood(dto.addressEntity().neighborhood());
+        addr.setCity(dto.addressEntity().city());
+        addr.setState(dto.addressEntity().state());
+        addr.setZipCode(dto.addressEntity().zipCode());
+        return addr;
+    }
 
     private Set<Hability> resolveHabilities(Set<String> names) {
         if (names == null || names.isEmpty()) {
@@ -128,3 +175,4 @@ public class UserService {
     }
 
 }
+

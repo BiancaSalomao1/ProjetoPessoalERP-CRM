@@ -1,6 +1,7 @@
 package com.projetoPessoal.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 public record UserDTO(
@@ -8,10 +9,11 @@ public record UserDTO(
         String name,
         String email,
         String phone,
-        String address,
+        AddressDTO addressEntity,
         BigDecimal income,
-        Integer numOfDependents,
+        List<DependentDTO> dependents,
         String status,
         String observations,
+        String photoPath,
         Set<String> habilities
 ) {}

@@ -1,13 +1,13 @@
 package com.projetoPessoal.mapper;
 
+import com.projetoPessoal.dto.AddressDTO;
+import com.projetoPessoal.dto.DependentDTO;
 import com.projetoPessoal.dto.UserDTO;
-import com.projetoPessoal.model.Address;
-import com.projetoPessoal.model.Hability;
-import com.projetoPessoal.model.Status;
-import com.projetoPessoal.model.User;
+import com.projetoPessoal.model.*;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,65 +28,44 @@ public class UserMapper {
                         .map(Hability::getName)
                         .collect(Collectors.toSet());
 
+        AddressDTO addressDTO = null;
+        if (user.getAddressEntity() != null) {
+            Address addr = user.getAddressEntity();
+            addressDTO = new AddressDTO(
+                    addr.getId(),
+                    addr.getStreet(),
+                    addr.getNumber(),
+                    addr.getNeighborhood(),
+                    addr.getCity(),
+                    addr.getState(),
+                    addr.getZipCode(),
+                    addr.getLatitude(),
+                    addr.getLongitude()
+            );
+        }
+
+        List<DependentDTO> dependentDTOs = user.getDependents() == null
+                ? Collections.emptyList()
+                : user.getDependents().stream()
+                        .map(d -> new DependentDTO(
+                                d.getId(),
+                                d.getName(),
+                                d.getBirthDate() != null ? d.getBirthDate().toString() : null,
+                                d.getAge()))
+                        .collect(Collectors.toList());
+
         return new UserDTO(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getAddressEntity() != null ? user.getAddressEntity().getStreet() : null,
+                addressDTO,
                 user.getIncome(),
-                user.getDependents() != null ? user.getDependents().size() : 0,
-                user.getStatus() != null ? user.getStatus().name() : null,
+                dependentDTOs,
+                user.getStatus() != null ? user.getStatus().getValue() : null,
                 user.getObservations(),
+                user.getPhotoPath(),
                 habilities);
     }
-
-    /* DTO → ENTITY */
-
-    public User toEntity(UserDTO dto, Set<Hability> habilities) {
-        if (dto == null) {
-            return null;
-        }
-
-        Address addr = null;
-        if (dto.address() != null) {
-            addr = new Address();
-            addr.setStreet(dto.address());
-        }
-
-        return User.builder()
-                .name(dto.name())
-                .email(dto.email())
-                .phone(dto.phone())
-                .addressEntity(addr)
-                .income(dto.income())
-                .status(dto.status() != null ? Status.valueOf(dto.status()) : null)
-                .observations(dto.observations())
-                .habilitySet(habilities)
-                .build();
-    }
-
-    /* UPDATE PARCIAL */
-
-    public void updateEntity(User user, UserDTO dto, Set<Hability> habilities) {
-        Address addr = user.getAddressEntity();
-        if (addr == null && dto.address() != null) {
-            addr = new Address();
-            addr.setStreet(dto.address());
-            addr.setUser(user);
-        } else if (addr != null && dto.address() != null) {
-            addr.setStreet(dto.address());
-        }
-
-        user.updateBasicData(
-                dto.name(),
-                dto.email(),
-                dto.phone(),
-                addr,
-                dto.income(),
-                dto.status() != null ? Status.valueOf(dto.status()) : null,
-                dto.observations(),
-                habilities);
-    }
-
 }
+

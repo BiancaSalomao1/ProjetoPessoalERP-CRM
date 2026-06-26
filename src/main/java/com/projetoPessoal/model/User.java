@@ -11,6 +11,7 @@ import java.util.*;
 @Entity
 @Table(name = "users")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -33,7 +34,7 @@ public class User {
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address addressEntity;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal income;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -47,7 +48,7 @@ public class User {
     @Column(length = 1000)
     private String observations;
 
-    @Column(name = "photo_path")
+    @Column(name = "photo_path", columnDefinition = "TEXT")
     private String photoPath;
 
     /* RELACIONAMENTOS */
