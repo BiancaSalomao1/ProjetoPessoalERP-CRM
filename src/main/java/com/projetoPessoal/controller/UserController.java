@@ -1,9 +1,6 @@
 package com.projetoPessoal.controller;
 
-import com.projetoPessoal.dto.UserCreateDTO;
 import com.projetoPessoal.dto.UserDTO;
-import com.projetoPessoal.dto.UserUpdateDTO;
-import com.projetoPessoal.model.User;
 import com.projetoPessoal.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,18 +20,21 @@ public class UserController {
         return userService.findDTOById(id);
     }
 
-
+    @GetMapping
+    public List<UserDTO> getAll() {
+        return userService.listAll();
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDTO create(@RequestBody UserCreateDTO dto) {
+    public UserDTO create(@RequestBody UserDTO dto) {
         return userService.createUser(dto);
     }
 
     @PutMapping("/{id}")
     public UserDTO update(
             @PathVariable Long id,
-            @RequestBody UserUpdateDTO dto
+            @RequestBody UserDTO dto
     ) {
         return userService.updateUser(id, dto);
     }
@@ -45,3 +45,4 @@ public class UserController {
         userService.deleteById(id);
     }
 }
+

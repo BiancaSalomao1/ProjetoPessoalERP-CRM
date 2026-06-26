@@ -32,5 +32,6 @@ public class Group {
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @Builder.Default
     private Set<User> members = new HashSet<>();
 }

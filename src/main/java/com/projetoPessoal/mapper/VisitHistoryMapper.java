@@ -8,6 +8,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class VisitHistoryMapper {
 
+    private final UserMapper userMapper;
+
+    public VisitHistoryMapper(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
     /* ENTITY → DTO */
 
     public VisitHistoryDTO toDTO(VisitHistory history) {
@@ -20,7 +26,7 @@ public class VisitHistoryMapper {
                 history.getVisitDate(),
                 history.getDescription(),
                 history.getPerformedBy(),
-                history.getUser().getId()
+                userMapper.toDTO(history.getUser())
         );
     }
 
