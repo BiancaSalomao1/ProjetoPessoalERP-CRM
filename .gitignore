@@ -33,10 +33,7 @@ build/
 .vscode/
 
 
-### Properties ###
-# application-dev.properties é seguro commitar (usa variáveis de ambiente)
-# application-prod.properties é seguro commitar (usa variáveis de ambiente)
-# As senhas reais ficam no .env local, que NUNCA vai para o git
+
 
 # Secrets
 .env
