@@ -25,12 +25,14 @@ public class VisitRouteService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @Transactional(readOnly = true)
     public List<VisitRouteDTO> findAll() {
         return visitRouteRepository.findAll().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public VisitRouteDTO findById(Long id) {
         return visitRouteRepository.findById(id)
                 .map(this::toDTO)
