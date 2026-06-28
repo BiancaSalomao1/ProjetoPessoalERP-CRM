@@ -15,7 +15,7 @@ public class SupportController {
     @Autowired
     private JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:suporte@erpsocial.com}")
+    @Value("${spring.mail.username}")
     private String mailFrom;
 
     @PostMapping("/ticket")
