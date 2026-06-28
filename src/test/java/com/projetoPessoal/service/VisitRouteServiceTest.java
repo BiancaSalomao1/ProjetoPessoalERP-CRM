@@ -53,7 +53,7 @@ public class VisitRouteServiceTest {
 
     @Test
     public void shouldCreateRouteWithStops() {
-        UserDTO userDto = new UserDTO(1L, "John", null, null, null, null, null, null, null, null, null);
+        UserDTO userDto = new UserDTO(1L, "John", null, null, null, null, null, null, null, null, null, null, null);
         RouteStopDTO stopDto = RouteStopDTO.builder().stopOrder(1).status("PENDING").user(userDto).build();
         VisitRouteDTO dto = VisitRouteDTO.builder().routeName("Route A").creationDate(LocalDate.now()).status("PENDING").stops(List.of(stopDto)).build();
 

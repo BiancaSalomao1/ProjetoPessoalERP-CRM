@@ -36,7 +36,7 @@ public class VisitHistoryControllerTest {
     @Test
     @WithMockUser
     public void shouldGetAllHistory() throws Exception {
-        UserDTO userDto = new UserDTO(1L, "John", null, null, null, null, null, null, null, null, null);
+        UserDTO userDto = new UserDTO(1L, "John", null, null, null, null, null, null, null, null, null, null, null);
         VisitHistoryDTO history = VisitHistoryDTO.builder().id(1L).visitDate(LocalDateTime.now()).description("Regular visit").performedBy("Agent A").user(userDto).build();
         when(service.listAll()).thenReturn(List.of(history));
 
@@ -48,7 +48,7 @@ public class VisitHistoryControllerTest {
     @Test
     @WithMockUser
     public void shouldCreateHistory() throws Exception {
-        UserDTO userDto = new UserDTO(1L, "John", null, null, null, null, null, null, null, null, null);
+        UserDTO userDto = new UserDTO(1L, "John", null, null, null, null, null, null, null, null, null, null, null);
         VisitHistoryDTO dto = VisitHistoryDTO.builder().visitDate(LocalDateTime.now()).description("Regular visit").performedBy("Agent A").user(userDto).build();
         VisitHistoryDTO savedDto = VisitHistoryDTO.builder().id(1L).visitDate(LocalDateTime.now()).description("Regular visit").performedBy("Agent A").user(userDto).build();
 
