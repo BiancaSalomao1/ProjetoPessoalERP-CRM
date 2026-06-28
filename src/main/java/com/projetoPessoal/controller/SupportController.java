@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/support")
 public class SupportController {
 
-    @Autowired(required = false)
+    @Autowired
     private JavaMailSender mailSender;
 
     @Value("${spring.mail.username:suporte@erpsocial.com}")
@@ -25,11 +25,6 @@ public class SupportController {
         System.out.println("Para: " + ticket.targetEmail());
         System.out.println("Mensagem: " + ticket.message());
         
-        if (mailSender == null) {
-            System.out.println("JavaMailSender não está configurado. O e-mail não foi enviado.");
-            return ResponseEntity.ok("Ticket processado (servidor de e-mail não configurado).");
-        }
-
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(mailFrom);

@@ -15,5 +15,7 @@ public record UserDTO(
         String status,
         String observations,
         String photoPath,
-        Set<String> habilities
+        Set<String> habilities,
+        java.time.LocalDate startAssistanceDate,
+        java.time.LocalDate endAssistanceDate
 ) {}

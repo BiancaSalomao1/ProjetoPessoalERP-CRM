@@ -54,6 +54,18 @@ public class UserMapper {
                                 d.getAge()))
                         .collect(Collectors.toList());
 
+        java.time.LocalDate startDate = null;
+        java.time.LocalDate endDate = null;
+        if (user.getAssistancePeriods() != null && !user.getAssistancePeriods().isEmpty()) {
+            AssistancePeriod lastPeriod = user.getAssistancePeriods().stream()
+                    .max(java.util.Comparator.comparing(AssistancePeriod::getStartDate))
+                    .orElse(null);
+            if (lastPeriod != null) {
+                startDate = lastPeriod.getStartDate();
+                endDate = lastPeriod.getEndDate();
+            }
+        }
+
         return new UserDTO(
                 user.getId(),
                 user.getName(),
@@ -65,7 +77,9 @@ public class UserMapper {
                 user.getStatus() != null ? user.getStatus().getValue() : null,
                 user.getObservations(),
                 user.getPhotoPath(),
-                habilities);
+                habilities,
+                startDate,
+                endDate);
     }
 }
 
