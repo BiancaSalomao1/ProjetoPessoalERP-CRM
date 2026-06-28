@@ -24,6 +24,7 @@ public class UserService {
 
     /* CONSULTAS */
 
+    @Transactional(readOnly = true)
     public List<UserDTO> listAll() {
         return userRepository.findAll()
                 .stream()
@@ -169,6 +170,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public UserDTO findDTOById(Long id) {
         User user = findById(id);
         return userMapper.toDTO(user);
