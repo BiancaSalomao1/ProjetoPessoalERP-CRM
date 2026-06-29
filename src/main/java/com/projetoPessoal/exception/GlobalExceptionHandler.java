@@ -49,7 +49,8 @@ public class GlobalExceptionHandler {
     /* 500 - Erro inesperado */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
+        ex.printStackTrace(); // Loga o erro no console do backend
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiError.of(500, "Erro interno do servidor"));
+                .body(ApiError.of(500, "Erro interno do servidor: " + ex.getMessage()));
     }
 }
