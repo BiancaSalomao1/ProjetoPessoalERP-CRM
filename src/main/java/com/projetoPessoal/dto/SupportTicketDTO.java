@@ -6,5 +6,6 @@ import lombok.Builder;
 public record SupportTicketDTO(
         String subject,
         String message,
-        String targetEmail
+        String targetEmail,
+        String replyTo
 ) {}
