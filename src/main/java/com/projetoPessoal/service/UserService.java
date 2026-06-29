@@ -71,9 +71,10 @@ public class UserService {
             }
         }
 
-        // Inicia assistência automaticamente com data de hoje
+        // Inicia assistência com a data informada no DTO ou a data de hoje
         try {
-            user.startAssistance(LocalDate.now());
+            LocalDate startDate = dto.startAssistanceDate() != null ? dto.startAssistanceDate() : LocalDate.now();
+            user.startAssistance(startDate);
         } catch (Exception e) {
             // Se falhar (ex: usuário INATIVO), ignorar silenciosamente
         }
@@ -118,6 +119,20 @@ public class UserService {
 
         if (dto.photoPath() != null) {
             user.setPhotoPath(dto.photoPath());
+        }
+
+        // Atualiza a assistência, caso uma data seja enviada e o usuário esteja ativo
+        if (dto.startAssistanceDate() != null) {
+            boolean hasActive = user.getAssistancePeriods().stream().anyMatch(AssistancePeriod::isActive);
+            if (!hasActive && user.getStatus() != Status.INACTIVE) {
+                user.startAssistance(dto.startAssistanceDate());
+            } else if (hasActive) {
+                // Atualiza a data do período ativo atual
+                user.getAssistancePeriods().stream()
+                    .filter(AssistancePeriod::isActive)
+                    .findFirst()
+                    .ifPresent(p -> p.setStartDate(dto.startAssistanceDate()));
+            }
         }
 
         // Atualizar dependentes
