@@ -31,6 +31,9 @@ public class SupportController {
             message.setTo(ticket.targetEmail());
             message.setSubject(ticket.subject());
             message.setText(ticket.message());
+            if (ticket.replyTo() != null && !ticket.replyTo().isEmpty()) {
+                message.setReplyTo(ticket.replyTo());
+            }
             mailSender.send(message);
             return ResponseEntity.ok("Ticket enviado com sucesso!");
         } catch (Exception e) {
